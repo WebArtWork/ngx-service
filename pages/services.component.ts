@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormService } from 'src/app/modules/form/form.service';
-import { ServiceService, Service } from 'src/app/core/services/service.service';
+import { ServiceService, Service } from 'src/app/modules/service/services/service.service';
 import { FormInterface } from 'src/app/modules/form/interfaces/form.interface';
 import { AlertService, CoreService } from 'wacom';
 import { TranslateService } from 'src/app/modules/translate/translate.service';
