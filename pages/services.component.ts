@@ -133,7 +133,20 @@ export class ServicesComponent {
 					}
 				]
 			});
-		}
+		},
+		buttons: [
+			{
+				icon: 'cloud_download',
+				click: (doc: Service) => {
+					this._form
+						.modalUnique<Service>(
+							'service',
+							'url',
+							doc
+						);
+				}
+			}
+		]
 	};
 
 	get rows(): Service[] {
