@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { MongoService, AlertService } from 'wacom';
 
 export interface Service {
-	_id: string;
+	_id?: string;
 	name: string;
 	description: string;
+	isTemplate: boolean;
+	template: string;
 }
 
 @Injectable({
@@ -23,7 +25,12 @@ export class ServiceService {
 		private mongo: MongoService,
 		private alert: AlertService
 	) {
-		this.services = mongo.get('service', {}, (arr: any, obj: any) => {
+		this.services = mongo.get('service', {
+			query: {
+				isTemplate: (doc: Service) => doc.isTemplate,
+				isNotTemplate: (doc: Service) => !doc.isTemplate
+			}
+		}, (arr: any, obj: any) => {
 			this._services = obj;
 		});
 	}

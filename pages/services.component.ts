@@ -2,9 +2,12 @@ import { Component } from '@angular/core';
 import { FormService } from 'src/app/modules/form/form.service';
 import { ServiceService, Service } from 'src/app/modules/service/services/service.service';
 import { FormInterface } from 'src/app/modules/form/interfaces/form.interface';
-import { AlertService, CoreService } from 'wacom';
+import { AlertService, CoreService, HttpService } from 'wacom';
 import { TranslateService } from 'src/app/modules/translate/translate.service';
 import { TagService } from 'src/app/modules/tag/services/tag.service';
+import { ServicesTemplateComponent } from './services/services-template/services-template.component';
+import { Router } from '@angular/router';
+import { ModalService } from 'src/app/modules/modal/modal.service';
 
 @Component({
 	templateUrl: './services.component.html',
@@ -98,17 +101,27 @@ export class ServicesComponent {
 	});
 
 	config = {
-		create: () => {
+		create:
+		this._router.url === '/admin/utilitylinks'
+		? null
+		: () => {
 			this._form
 				.modal<Service>(this.form, {
 					label: 'Create',
 					click: (created: unknown, close: () => void) => {
+						(created as Service).isTemplate =
+							this._router.url === '/admin/utilities'
+								? true
+								: false;
 						this._ss.create(created as Service);
 						close();
 					}
 				});
 		},
-		update: (doc: Service) => {
+		update:
+		this._router.url === '/admin/utilitylinks'
+		? null
+		:  (doc: Service) => {
 			this._form
 				.modal<Service>(this.form, [], doc)
 				.then((updated: Service) => {
@@ -116,7 +129,10 @@ export class ServicesComponent {
 					this._ss.save(doc);
 				});
 		},
-		delete: (doc: Service) => {
+		delete:
+		this._router.url === '/admin/utilitylinks'
+		? null
+		:  (doc: Service) => {
 			this._alert.question({
 				text: this._translate.translate(
 					'Common.Are you sure you want to delete this service?'
@@ -134,7 +150,10 @@ export class ServicesComponent {
 				]
 			});
 		},
-		buttons: [
+		buttons:
+		this._router.url === '/admin/utilitylinks'
+		? null
+		:  [
 			{
 				icon: 'cloud_download',
 				click: (doc: Service) => {
@@ -146,19 +165,44 @@ export class ServicesComponent {
 						);
 				}
 			}
+		],
+		headerButtons: [
+			{
+				text: 'Add from crafts',
+				click: () => {
+					this._modal.show({
+						component: ServicesTemplateComponent,
+						class: 'forms_modal'
+					});
+				}
+			}
 		]
 	};
 
-	get rows(): Service[] {
-		return this._ss.services;
-	}
+	links: Service[] = [];
 
+	get rows(): Service[] {
+		return this._router.url === '/admin/utilities'
+			? this._ss._services.isTemplate
+			: this._router.url === '/admin/utilitylinks'
+			? this.links
+			: this._ss._services.isNotTemplate;
+	}
 	constructor(
 		private _translate: TranslateService,
 		private _alert: AlertService,
 		private _ss: ServiceService,
 		private _form: FormService,
 		private _core: CoreService,
-		private _ts: TagService
-	) {}
+		private _ts: TagService,
+		private _router: Router,
+		private _http: HttpService,
+		private _modal: ModalService
+	)  {
+		if (this._router.url === '/admin/utilitylinks') {
+			this._http.get('/api/service/getlinks', (links: Service[]) => {
+				links.forEach((service: Service)=>this.links.push(service));
+			});
+		}
+	}
 }
