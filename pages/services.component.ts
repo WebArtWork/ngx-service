@@ -188,6 +188,19 @@ export class ServicesComponent {
 			? this.links
 			: this._ss._services.isNotTemplate;
 	}
+	get title(): string {
+		if (this._router.url === '/admin/utilities') {
+			return 'Utilities'
+		}
+
+		if (this._router.url === '/admin/utilitylinks') {
+			return 'Services Links'
+		}
+
+		return 'Services';
+	}
+
+
 	constructor(
 		private _translate: TranslateService,
 		private _alert: AlertService,
@@ -201,6 +214,10 @@ export class ServicesComponent {
 	)  {
 		if (this._router.url === '/admin/utilitylinks') {
 			this._http.get('/api/service/getlinks', (links: Service[]) => {
+				links.forEach((service: Service)=>this.links.push(service));
+			});
+		} else if (this._router.url === '/admin/services') {
+			this._http.get('/api/service/getadmin', (links: Service[]) => {
 				links.forEach((service: Service)=>this.links.push(service));
 			});
 		}
