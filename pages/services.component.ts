@@ -166,9 +166,12 @@ export class ServicesComponent {
 				}
 			}
 		],
-		headerButtons: [
+		headerButtons:
+		this._router.url === '/manage/services'
+		? null
+		: [
 			{
-				text: 'Add from crafts',
+				text: 'Add from utilities',
 				click: () => {
 					this._modal.show({
 						component: ServicesTemplateComponent,
